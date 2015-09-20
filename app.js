@@ -1,6 +1,8 @@
 
 var socket = io();
 
+// chat
+// sends message to server
 var input = document.getElementById('chatInput');
 input.onkeypress = function(e){
 	if (!e) e = window.event;
@@ -11,9 +13,7 @@ input.onkeypress = function(e){
 		return false;
 	};
 }
-
-
-// chat stuff
+// recieves message from server
 socket.on('chat message', function(msg){
 	var newline = document.createElement('li');
 
@@ -30,9 +30,19 @@ socket.on('chat message', function(msg){
 var width = window.innerWidth;
 var height = window.innerHeight;
 var c = document.getElementById('cvs');
+var ctx = c.getContext('2d');
 c.width = width;
 c.height = height;
 
+c.addEventListener('mousedown', function(e) {
+	socket.emit('addSquare');
+	console.log('mouse down event');
+});
+
+socket.on('drawSquare', function(player){
+	ctx.fillStyle = 'hsl(' + player.hue + ', 100%, 50%)';
+	ctx.fillRect(player.x,player.y,player.width,player.height);
+});
 
 function Shape(x,y,w,h, fill){
 	this.x = x || 0;
@@ -45,14 +55,6 @@ function Shape(x,y,w,h, fill){
 Shape.prototype.draw = function(ctx){
 	ctx.fillStyle = this.fill;
 	ctx.fillRect(this.x, this.y, this.w, this.h);
-}
-
-// Determine if a point is inside the shape's bounds
-Shape.prototype.contains = function(mx, my) {
-  // All we have to do is make sure the Mouse X,Y fall in the area between
-  // the shape's X and (X + Width) and its Y and (Y + Height)
-  return  (this.x <= mx) && (this.x + this.w >= mx) &&
-          (this.y <= my) && (this.y + this.h >= my);
 }
 
 function CanvasState(canvas) {
@@ -228,12 +230,14 @@ CanvasState.prototype.getMouse = function(e) {
 //init();
 
 function init() {
-  var s = new CanvasState(document.getElementById('cvs'));
-  s.addShape(new Shape(40,40,50,50)); // The default is gray
-  s.addShape(new Shape(60,140,40,60, 'lightskyblue'));
+	//ctx.fillStyle = '#AAAAAA';
+	//ctx.fillRect(25,25,100,100);
+  //var s = new CanvasState(document.getElementById('cvs'));
+  //s.addShape(new Shape(40,40,50,50)); // The default is gray
+  //s.addShape(new Shape(60,140,40,60, 'lightskyblue'));
   // Lets make some partially transparent
-  s.addShape(new Shape(80,150,60,30, 'rgba(127, 255, 212, .5)'));
-  s.addShape(new Shape(125,80,30,80, 'rgba(245, 222, 179, .7)'));
+  //s.addShape(new Shape(80,150,60,30, 'rgba(127, 255, 212, .5)'));
+  //s.addShape(new Shape(125,80,30,80, 'rgba(245, 222, 179, .7)'));
 }
 
 // Now go make something amazing!
