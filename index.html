@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    
+</head>
+<body onLoad='init()'>
+
+    <!-- this is the client !-->
+    <script src='/socket.io/socket.io.js'></script>
+    <div id="game">
+        
+        <!-- This is the chatbox !-->
+        <div class="chatbox" id="chatbox">
+            <ul id="chatList"></ul>
+            <input id="chatInput" type="text" placeholder="blah blah" maxlength="35" />
+        </div>
+
+        <canvas id="cvs"></canvas>
+    </div>
+    
+    <script type="text/javascript" src="/app.js"></script>
+</body>
+</html>
