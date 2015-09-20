@@ -1,3 +1,4 @@
+
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -46,6 +47,7 @@ http.listen(3000, function(){
   console.log('listening on *:3000');
 });
 
+<<<<<<< HEAD
 function Shape(x,y,w,h, fill){
 	this.x = x || 0;
 	this.y = y || 0;
@@ -63,3 +65,5 @@ Shape.prototype.contains = function(mx, my) {
           (this.y <= my) && (this.y + this.h >= my);
 }
 
+=======
+>>>>>>> origin/master
