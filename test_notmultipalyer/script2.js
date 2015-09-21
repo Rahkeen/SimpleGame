@@ -48,8 +48,11 @@ function PLAYER(player_canvas_ctx){
     this.right_key = false;
     this.space_key = false;
     this.character_speed = 0;
-	// [left,down,right,up]
-	this.movement = [true,true,true,true];
+
+	// [tl, tm, tr] 0, 1, 2
+	// [ml,     mr] 3,    4
+	// [bl, bm, br] 5, 6, 7
+	this.movement = [true,true,true,true,true,true,true,true];
 	
 }
 
@@ -59,27 +62,22 @@ PLAYER.prototype.updateLevel = function(level_imageData){
 
 PLAYER.prototype.moveCharacter = function(){
 	this.checkCollision();
-    if(this.movement[1] == true){
-		this.y+=4;
+    if(this.movement[5] == true && this.movement[6] == true && this.movement[7] == true ){
+		this.y+=5;
 	}
 	
 	if(this.left_key == true){
-		if(this.movement[0] == true){
+		if(this.movement[3] == true){
 			this.x-=1;
 		}
-		if(this.movement[0] == false){
-			this.y-=1;
-			this.x-=1;
-		}
+
 	}
 	
 	if(this.right_key){
-		if(this.movement[2] == true){
+		if(this.movement[4] == true){
 			this.x+=1;
 		}
-		if(this.movement[3] == true && this.movement[2] == false){
-			this.y-=1;
-		}
+
 	}
 	this.drawCharacter();
 }
@@ -98,12 +96,13 @@ PLAYER.prototype.drawCharacter = function(){
 // TODO: check collisions from the front and back
 PLAYER.prototype.checkCollision = function(){
 		
+		// [tl, tm, tr] 0, 1, 2
+		// [ml,     mr] 3,    4
+		// [bl, bm, br] 5, 6, 7
 		
-		// checks below
-        // check alpha beneath
-		//console.log(this.y);
-		var x = this.x + this.width/2;
-		var y = this.y + this.height;
+		// checks top left;
+		var x = this.x;
+		var y = this.y;
 		var idx = (x + y * this.level.width) * 4;
 		
 		 /* for(var i=idx; i<idx+10; i+=4){
@@ -115,41 +114,83 @@ PLAYER.prototype.checkCollision = function(){
 		
 
 		if(this.level.data[idx+3] == 255){
-			this.movement[1] = false;
-		}else{
-			this.movement[1] = true;
-		}
-		
-		
-		// checks to the left
-		x = this.x - this.width;
-		y = this.y + (0.5 * this.height);
-		idx = (x + y * this.level.width) * 4;
-		console.log(this.movement);
-
-		if(this.level.data[idx+3] == 255){
 			this.movement[0] = false;
 		}else{
 			this.movement[0] = true;
 		}
 		
-		// checks to the right
-		x = this.x + this.width;
+		// checks top middle
+		x = this.x + this.width/2;
+		y = this.y;
 		idx = (x + y * this.level.width) * 4;
+
+		if(this.level.data[idx+3] == 255){
+			this.movement[1] = false;
+		}else{
+			this.movement[1] = true;
+		}
+
+		// checks top right
+		x = this.x + this.width;
+		y = this.y;
+		idx = (x + y * this.level.width) * 4;
+
 		if(this.level.data[idx+3] == 255){
 			this.movement[2] = false;
 		}else{
 			this.movement[2] = true;
 		}
-		
-		//checks above
-		x = this.x + this.width/2;
-		y = this.y;
+
+		// checks middle left
+		x = this.x;
+		y = this.y + this.height/2;
 		idx = (x + y * this.level.width) * 4;
+
 		if(this.level.data[idx+3] == 255){
 			this.movement[3] = false;
 		}else{
 			this.movement[3] = true;
+		}
+
+		// checks middle right
+		x = this.x + this.width;
+		y = this.y + this.height/2;
+		idx = (x + y * this.level.width) * 4;
+
+		if(this.level.data[idx+3] == 255){
+			this.movement[4] = false;
+		}else{
+			this.movement[4] = true;
+		}
+		
+		// checks to the bottom left
+		x = this.x;
+		y = this.y + this.height;
+		idx = (x + y * this.level.width) * 4;
+		if(this.level.data[idx+3] == 255){
+			this.movement[5] = false;
+		}else{
+			this.movement[5] = true;
+		}
+		
+		// checks bottom mid
+		x = this.x + this.width/2;
+		y = this.y + this.height;
+		idx = (x + y * this.level.width) * 4;
+		if(this.level.data[idx+3] == 255){
+			this.movement[6] = false;
+		}else{
+			this.movement[6] = true;
+		}
+
+		//checks to the bottom right
+		x = this.x + this.width;
+		y = this.y + this.height;
+		idx = (x + y * this.level.width) * 4;
+		if(this.level.data[idx+3] == 255){
+			this.movement[7] = false;
+		}else{
+			this.movement[7] = true;
 		}
 		
 		return true;
