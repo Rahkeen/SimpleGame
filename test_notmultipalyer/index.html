@@ -1,0 +1,30 @@
+<html>
+<head>
+	<title>Worms / Tanks HTML5 Pixel Perfect Destructible Terrain</title>
+	<style>
+		body {
+			
+			margin:0;
+			padding:0;
+		}
+		#player {
+			position:absolute;
+			left:0px;
+			top:0px;
+			z-index: 1;
+		}
+		
+		#level {
+			position: absolute;
+			left: 0;
+			top: 0;
+			z-index: 2;
+		}
+	</style>
+	<script src="script2.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body onload="init()">
+	<canvas id="player"> </canvas>
+	<canvas id="level"> </canvas>
+</body>
+</html>
