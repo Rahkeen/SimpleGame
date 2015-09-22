@@ -4,9 +4,21 @@
     <meta charset="UTF-8">
     <title>Test</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-    
+    <style>
+        body {
+            
+            margin:0;
+            padding:0;
+        }
+        #cvs {
+            position:absolute;
+            left:0px;
+            top:0px;
+            z-index: 1;
+        }
+    </style>
 </head>
-<body onLoad='init()'>
+<body>
 
     <!-- this is the client !-->
     <script src='/socket.io/socket.io.js'></script>
@@ -18,7 +30,7 @@
             <input id="chatInput" type="text" placeholder="blah blah" maxlength="35" />
         </div>
 
-        <canvas id="cvs"></canvas>
+        <canvas id="cvs"> </canvas>
     </div>
     
     <script type="text/javascript" src="/app.js"></script>
