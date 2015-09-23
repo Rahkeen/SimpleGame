@@ -33,18 +33,22 @@ function PLAYER(){
   this.drawing = false;
   this.lastEmit = (new Date).getTime();
   this.id = Math.round((new Date).getTime()*Math.random());
+  this.canDraw = false;
 }
 
 // game variables
 
 
 socket.on('drawOther',function(data){
-  if(data.drawing && game.clients[data.id]){
+
+  console.log(data);
+  if(data.drawing){
     game.drawLine(game.clients[data.id].x, game.clients[data.id].y, data.x, data.y);
   }
 
   game.clients[data.id] = data;
-  game.clients[data.id].updated = (new Date).getTime();
+
+  //game.clients[data.id].updated = (new Date).getTime();
 });
 
 
@@ -64,26 +68,31 @@ game.c.addEventListener('mouseleave', function(e){
 });
 
 game.c.addEventListener('mousemove', function(e){
-  
-  if((new Date).getTime() - player.lastEmit > 30){
-    socket.emit('draw',{
-        'x': e.clientX,
-        'y': e.clientY,
-        'drawing': player.drawing,
-        'id': player.id
-      });
+
+  if((new Date).getTime() - player.lastEmit > 15){
+    socket.emit('draw',player);
     player.lastEmit = (new Date).getTime();
   }
 
-  if(player.drawing){
-    console.log(player);
+  if(player.drawing && player.canDraw){
+    //console.log(player);
     player.x = e.clientX;
     player.y = e.clientY;
     game.drawLine(player.prevx, player.prevy, player.x, player.y);
     player.prevx = e.clientX;
     player.prevy = e.clientY;
   }
+
 });
+
+socket.on('assignDraw',function(data){
+  if (player.id == data){
+    player.canDraw = true;
+  }else{
+    player.canDraw = false;
+  }
+});
+
 
 // chat
 // chat
@@ -109,3 +118,8 @@ socket.on('chat message', function(msg){
   }
   chatList.appendChild(newline);
 });
+
+function init(){
+// test
+socket.emit('checkin',player);
+}
