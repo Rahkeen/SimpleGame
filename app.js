@@ -33,22 +33,17 @@ function PLAYER(){
   this.drawing = false;
   this.lastEmit = (new Date).getTime();
   this.id = Math.round((new Date).getTime()*Math.random());
-  this.canDraw = false;
 }
 
 // game variables
 
-
 socket.on('drawOther',function(data){
-
-  console.log(data);
-  if(data.drawing){
+  if(data.drawing && game.clients[data.id]){
     game.drawLine(game.clients[data.id].x, game.clients[data.id].y, data.x, data.y);
   }
 
   game.clients[data.id] = data;
-
-  //game.clients[data.id].updated = (new Date).getTime();
+  game.clients[data.id].updated = (new Date).getTime();
 });
 
 
@@ -68,13 +63,13 @@ game.c.addEventListener('mouseleave', function(e){
 });
 
 game.c.addEventListener('mousemove', function(e){
-
-  if((new Date).getTime() - player.lastEmit > 15){
+  
+  if((new Date).getTime() - player.lastEmit > 30){
     socket.emit('draw',player);
     player.lastEmit = (new Date).getTime();
   }
 
-  if(player.drawing && player.canDraw){
+  if(player.drawing){
     //console.log(player);
     player.x = e.clientX;
     player.y = e.clientY;
@@ -82,17 +77,7 @@ game.c.addEventListener('mousemove', function(e){
     player.prevx = e.clientX;
     player.prevy = e.clientY;
   }
-
 });
-
-socket.on('assignDraw',function(data){
-  if (player.id == data){
-    player.canDraw = true;
-  }else{
-    player.canDraw = false;
-  }
-});
-
 
 // chat
 // chat
@@ -121,5 +106,5 @@ socket.on('chat message', function(msg){
 
 function init(){
 // test
-socket.emit('checkin',player);
+  socket.emit('start',player);
 }
