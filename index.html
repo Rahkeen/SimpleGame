@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
     <style>
         body {
+            
             margin:0;
             padding:0;
         }
@@ -13,39 +14,19 @@
             position:absolute;
             left:0px;
             top:0px;
-            z-index: -1;
-        }
-
-        #chatbox {
-            position:absolute;
-            top: 0%;
-            font-size:12px;
-            width: 300px;
-            height: 200px;
-            background-color:red;
-
-        }
-        #chatbox li{
-            list-style-type: none;
-            margin-left: -30px;
-        }
-        #chatInput{
-            position:absolute;
-            top: 175px;
+            z-index: 1;
         }
     </style>
 </head>
-<body onload="init()">
+<body>
 
     <!-- this is the client !-->
     <script src='/socket.io/socket.io.js'></script>
     <div id="game">
         
         <!-- This is the chatbox !-->
-        <div id="chatbox">
-            <ul id="chatList">
-
-            </ul>
+        <div class="chatbox" id="chatbox">
+            <ul id="chatList"></ul>
             <input id="chatInput" type="text" placeholder="blah blah" maxlength="35" />
         </div>
 

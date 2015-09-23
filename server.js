@@ -33,7 +33,7 @@ console.log(dictionary_words[0]);
 
 
 setInterval(function(){
-  console.log(game.clients.length);
+  //console.log(game.clients.length);
   // check if there are people
   // if there are no people skip
   if(game.clients.length > 1){
@@ -60,19 +60,19 @@ io.on('connection', function(socket){
     game.clients.push(data);
 
     //delete game.clients[data.id];
-    //console.log(game.clients);
+    console.log(data.id);
   });
 
 
   //io.emit('test', dictionary[2]);
-	// chat
-  	socket.on('chat message', function(msg){
+  // chat
+    socket.on('chat message', function(msg){
 
       // if msg == dictionary word, set a gotit flag
 
-    	io.emit('chat message', msg);
-  		//console.log('message: ' + msg);
-  	});
+      io.emit('chat message', msg);
+      //console.log('message: ' + msg);
+    });
 
     socket.on('draw',function(player){
       socket.broadcast.emit('drawOther', player);

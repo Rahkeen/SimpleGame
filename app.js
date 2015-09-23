@@ -4,6 +4,8 @@ var socket = io();
 var game = new GAME();
 var player = new PLAYER();
 
+window.onload = init();
+
 
 function GAME(){
   //canvas stuff
@@ -37,6 +39,7 @@ function PLAYER(){
 
 // game variables
 
+
 socket.on('drawOther',function(data){
   if(data.drawing && game.clients[data.id]){
     game.drawLine(game.clients[data.id].x, game.clients[data.id].y, data.x, data.y);
@@ -48,7 +51,7 @@ socket.on('drawOther',function(data){
 
 
 game.c.addEventListener('mousedown', function(e) {
-	player.drawing = true;
+  player.drawing = true;
   player.prevx = e.clientX;
   player.prevy = e.clientY;
   //console.log('('+player.prevx+','+player.prevy+')');
@@ -65,12 +68,17 @@ game.c.addEventListener('mouseleave', function(e){
 game.c.addEventListener('mousemove', function(e){
   
   if((new Date).getTime() - player.lastEmit > 30){
-    socket.emit('draw',player);
+    socket.emit('draw',{
+        'x': e.clientX,
+        'y': e.clientY,
+        'drawing': player.drawing,
+        'id': player.id
+      });
     player.lastEmit = (new Date).getTime();
   }
 
   if(player.drawing){
-    //console.log(player);
+    console.log(player);
     player.x = e.clientX;
     player.y = e.clientY;
     game.drawLine(player.prevx, player.prevy, player.x, player.y);
@@ -105,6 +113,6 @@ socket.on('chat message', function(msg){
 });
 
 function init(){
-// test
-  socket.emit('start',player);
+  socket.emit('checkin',player);
 }
+
