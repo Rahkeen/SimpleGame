@@ -67,20 +67,17 @@ game.c.addEventListener('mouseleave', function(e){
 
 game.c.addEventListener('mousemove', function(e){
   
+  // update positions
+  player.x = e.clientX;
+  player.y = e.clientY;
+
   if((new Date).getTime() - player.lastEmit > 30){
-    socket.emit('draw',{
-        'x': e.clientX,
-        'y': e.clientY,
-        'drawing': player.drawing,
-        'id': player.id
-      });
+    
+    socket.emit('draw',player);
     player.lastEmit = (new Date).getTime();
   }
 
   if(player.drawing){
-    console.log(player);
-    player.x = e.clientX;
-    player.y = e.clientY;
     game.drawLine(player.prevx, player.prevy, player.x, player.y);
     player.prevx = e.clientX;
     player.prevy = e.clientY;
