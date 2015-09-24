@@ -27,6 +27,8 @@ function GAME(){
   this.currentRoundTime = 30;
   this.firstGuess = 0;
   this.assignPoints = 10;
+  this.inactiveTimeCheck = 10;
+  this.isHere = false;
 }
 var game = new GAME();
 
@@ -52,6 +54,12 @@ setInterval(function(){
     // subtract 1 second from round time
     game.currentRoundTime -= 1;
 
+    // if drawer hasn't drawn anything for the first game.inactiveTimeCheck, go to next user
+    if(game.currentRoundTime < game.roundTime - game.inactiveTimeCheck && game.isHere == false){
+      io.emit('inactiveDrawer');
+      game.clients.splice(0,1);
+      reset();
+    }
     if(game.currentRoundTime < 0){
       reset();
     }
@@ -66,7 +74,7 @@ setInterval(function(){
 function reset(){
   game.currentRoundTime = game.roundTime;
   game.firstGuess = 0;
-
+  game.isHere = false;
   // refresh to remove inactive players
 
   // shift everyone up a spot
@@ -85,6 +93,7 @@ io.on('connection', function(socket){
 
   socket.on('checkin',function(data){
     game.clients.push(data);
+
     game.sockets[data.id] = socket;
     //delete game.clients[data.id];
     //console.log(socket);
@@ -117,6 +126,9 @@ io.on('connection', function(socket){
     });
 
     socket.on('draw',function(player){
+      if(player.id == game.clients[0].id){
+        game.isHere = true;
+      }
       socket.broadcast.emit('drawOther', player);
     });
 

@@ -98,6 +98,12 @@ input.onkeypress = function(e){
     return false;
   };
 }
+
+socket.on('inactiveDrawer', function(){
+  console.log('inactive user');
+  player.canDraw = false;
+});
+
 // recieves message from server
 socket.on('chat message', function(msg){
   var newline = document.createElement('li');
