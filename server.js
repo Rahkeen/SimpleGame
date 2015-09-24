@@ -16,28 +16,28 @@ app.get('/', function(req, res){
 
 app.use(express.static(__dirname + '/'));
 
-// variables
-
+// GAME OBJECT
+// Handles all variables associated with the game
 function GAME(){
-  this.clients = [];
-  this.leaderboard = {};
-  this.sockets = {};
-  this.roundTime = 30;
-  this.emergencyRoundTime = 30;
-  this.currentRoundTime = 30;
-  this.firstGuess = 0;
-  this.assignPoints = 10;
-  this.inactiveTimeCheck = 10;
-  this.isHere = false;
+  this.clients = []; // tracks the order of who draws
+  this.leaderboard = {}; // tracks the points
+  this.sockets = {}; // tracks the sockets of the players
+  this.roundTime = 120; // sets the round time
+  this.emergencyRoundTime = 30; // sets the emergency round time
+  this.currentRoundTime = 120; // tracks the current tound time
+  this.firstGuess = 0; // flag: sees if someone has got the first answer
+  this.assignPoints = 10; // point value to assign
+  this.inactiveTimeCheck = 30; // sets the duration for someone to be inactive
+  this.isHere = false; // flag: sees if they are here
 }
+
+// initialize the game
 var game = new GAME();
 
-
-
-// get word
+// get first word
 game.currentWord = dictionary_words[0];
 
-
+// game loop
 setInterval(function(){
   //console.log(game.clients.length);
   // check if there are people
@@ -48,7 +48,7 @@ setInterval(function(){
     // send out the word
     // give next person that draw oppertunity
     io.emit('assignDraw', game.clients[0].id);
-    game.sockets[game.clients[0].id].emit('word',dictionary_words[0]);
+    game.sockets[game.clients[0].id].emit('word',game.currentWord);
     
     // wait for timer, and check against inputs from chat
     // subtract 1 second from round time
@@ -63,6 +63,7 @@ setInterval(function(){
       reset();
     }
     if(game.currentRoundTime < 0){
+      io.emit('revealWord', game.currentWord);
       reset();
     }
 
@@ -76,7 +77,7 @@ setInterval(function(){
 
 },1000);
 
-
+// resets the game state
 function reset(){
   game.currentRoundTime = game.roundTime;
   game.firstGuess = 0;
@@ -93,8 +94,9 @@ function reset(){
   // reset things that need to be reset
 }
 
-// intial connection
 
+// intial connection
+// recieves all the connections
 io.on('connection', function(socket){
 
   socket.on('checkin',function(data){
@@ -106,38 +108,39 @@ io.on('connection', function(socket){
     //console.log(socket);
   });
 
+  // chat and checks if person guess the word correctly
+  socket.on('chat message', function(data){
 
-  //io.emit('test', dictionary[2]);
-  // chat
-    socket.on('chat message', function(data){
-
-      // if msg == dictionary word is first instance, set timer into emergency mode
-      if(data[1] == game.currentWord && game.currentRoundTime > 0){
-        console.log('guess correct');
-        game.firstGuess += 1;
-        if(game.firstGuess == 1){
-          game.currentRoundTime = game.emergencyRoundTime;
-          console.log('emergency time activated')
-        }
-
-        // assign points to person
-        if(data[0] in game.leaderboard){
-          game.leaderboard[data[0]] += game.assignPoints;
-        }else{
-          game.leaderboard[data[0]] = game.assignPoints;
-        }
+    // if msg == dictionary word is first instance, set timer into emergency mode
+    if(data[1].toUpperCase() == game.currentWord && game.currentRoundTime > 0){
+      console.log('guess correct');
+      game.firstGuess += 1;
+      if(game.firstGuess == 1){
+        game.currentRoundTime = game.emergencyRoundTime;
+        console.log('emergency time activated')
       }
 
+      // assign points to person
+      if(data[0] in game.leaderboard){
+        game.leaderboard[data[0]] += game.assignPoints;
+      }else{
+        game.leaderboard[data[0]] = game.assignPoints;
+      }
+
+      game.sockets[data[0]].emit('correctAnswer', game.assignPoints);
+    }else{
       io.emit('chat message', data[0] + ': ' + data[1]);
-      //console.log('message: ' + msg);
-    });
+    }
 
-    socket.on('draw',function(player){
-      if(player.id == game.clients[0].id){
-        game.isHere = true;
-      }
-      socket.broadcast.emit('drawOther', player);
-    });
+    //console.log('message: ' + msg);
+  });
+
+  socket.on('draw',function(player){
+    if(player.id == game.clients[0].id){
+      game.isHere = true;
+    }
+    socket.broadcast.emit('drawOther', player);
+  });
 
 });
 

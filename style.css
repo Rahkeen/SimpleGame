@@ -30,39 +30,44 @@ html, #chatInput{
     color: #2C3E50;
     list-style: none;
     font-size: 12px;
-    margin:0;
-    padding:0;
 }
 
 .oddli{
     color: #2C3E50;
     list-style: none;
     font-size: 12px;
-    margin:0;
-    padding:0;
     background-color: #F0F4F5;
 }
 .userli{
     color: #ECF0F1;
     list-style: none;
     font-size: 12px;
-    margin:0;
-    padding:0;
     background-color: #2C3E50;
+    margin-top: 1px;
+    padding: 5px;
 }
 
 .systemli{
     color: #ECF0F1;
     list-style: none;
     font-size: 12px;
-    margin:0;
-    padding:0;
     background-color: #E74C3C;
+    margin-top: 1px;
+    padding: 5px;
+}
+.correctli{
+    color: #ECF0F1;
+    list-style: none;
+    font-size: 12px;
+    background-color: #91C46C;
+    margin-top: 1px;
+    padding: 5px;
 }
 #chatList {
     height: 80vh;
     overflow-y:scroll;
     word-wrap: break-word;
+    margin-top: 5px;
 }
 #cvs {
     position:absolute;
@@ -84,4 +89,11 @@ html, #chatInput{
     background-color: #E74C3C;
     color: #ECF0F1;
     text-align:center;
+}
+#word{
+    font=size: 80px;
+    font-weight: bold;
+    background-color: #FFD651;
+    color: #2C3E50;
+    text-align: center;
 }

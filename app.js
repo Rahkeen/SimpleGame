@@ -6,7 +6,8 @@ var player = new PLAYER();
 
 window.onload = init();
 
-
+// GAME OBJECT
+// keeps track of all the variables associated with the game
 function GAME(){
   //canvas stuff
   this.width = window.innerWidth;
@@ -23,6 +24,7 @@ function GAME(){
   this.emptyLobbyMsg = true;
 }
 
+// draws the lines on the canvas
 GAME.prototype.drawLine = function(prevx, prevy, currentx, currenty){
   this.ctx.beginPath();
   this.ctx.moveTo(prevx, prevy);
@@ -30,9 +32,11 @@ GAME.prototype.drawLine = function(prevx, prevy, currentx, currenty){
   this.ctx.stroke();
 }
 
+// Writes MSGS to the chat
 // case 0 default
 // case 1 system
 // case 2 user joined
+// case 3 correct answer
 GAME.prototype.writeMSG = function(msg, val){
   var newline = document.createElement('li');
   
@@ -42,6 +46,9 @@ switch(val){
     break;
   case 2:
     newline.className = "userli";
+    break;
+  case 3:
+    newline.className = "correctli";
     break;
   default:
     if(this.oddmsg){
@@ -59,10 +66,13 @@ switch(val){
   chatList.scrollTop = chatList.scrollHeight;
 }
 
+// CHANGES THE DRAWER's NAME
 GAME.prototype.changeDrawName = function(name){
   document.getElementById('drawname').innerHTML = name + " IS DRAWING";
 }
 
+// PLAYER OBJECT
+// keeps track of all the information for the player
 function PLAYER(){
   this.prevx = 0;
   this.prevy = 0;
@@ -74,9 +84,7 @@ function PLAYER(){
   this.canDraw = false;
 }
 
-// game variables
-
-
+// DRAWS WHAT THE OTHER PLAYER IS DRAWING
 socket.on('drawOther',function(data){
   if(data.drawing && data.id in game.clients && data.canDraw){
     game.drawLine(game.clients[data.id].x, game.clients[data.id].y, data.x, data.y);
@@ -86,7 +94,7 @@ socket.on('drawOther',function(data){
   //game.clients[data.id].updated = (new Date).getTime();
 });
 
-
+// DETECTS MOUSE DOWN
 game.c.addEventListener('mousedown', function(e) {
   player.drawing = true;
   player.prevx = e.clientX;
@@ -94,14 +102,17 @@ game.c.addEventListener('mousedown', function(e) {
   //console.log('('+player.prevx+','+player.prevy+')');
 });
 
+// DETECTS MOUSE UP
 game.c.addEventListener('mouseup', function(e){
   player.drawing = false;
 });
 
+// DETECTS WHEN MOUSE LEAVES THE WINDOW
 game.c.addEventListener('mouseleave', function(e){
   player.drawing = false;
 });
 
+// DETECTS WHEN THE MOUSE MOVES
 game.c.addEventListener('mousemove', function(e){
   
   // update positions
@@ -127,42 +138,47 @@ var input = document.getElementById('chatInput');
 input.onkeypress = function(e){
   if (!e) e = window.event;
   var keyCode = e.keyCode || e.which;
-  if(keyCode == '13' && player.canChat){
+  if(keyCode == '13' && game.canChat){
     socket.emit('chat message', [player.id,input.value]);
     input.value = '';
     return false;
   };
 }
 
+// RECIEVES THAT THE DRAWER IS INACTVE
 socket.on('inactiveDrawer', function(){
   console.log('inactive user');
   player.canDraw = false;
-  player.canChat = false;
+  game.canChat = false;
   game.writeMSG('Drawer is inactive, switching to next person.',1);
 });
 
-// recieves message from server
+// RECIEVES CHAT FROM OTHER USERS
 socket.on('chat message', function(msg){
   game.writeMSG(msg,0);
 });
 
+// CHECK TO SEE IF USER IS THE DRAWER
 socket.on('assignDraw', function(data){
   game.changeDrawName(data);
   game.emptyLobbyMsg = true;
 
   if(data == player.id){
     player.canDraw = true;
-    player.canChat = false;
+    game.canChat = false;
   }else{
     player.canDraw = false;
-    player.canChat = true;
+    //player.canChat = true;
+    document.getElementById('word').innerHTML = '';
   }
 });
 
+// RECIEVES THAT SOMEONE HAS JOINED THE LOBBY
 socket.on('someoneJoined',function(data){
   game.writeMSG(data + ' has joined the lobby.',2);
 });
 
+// RECIEVES THAT NO ONE IS IN THE LOBBY
 socket.on('emptylobby',function(){
   if(game.emptyLobbyMsg){
     game.writeMSG('There is currently no one else in the lobby.',1);
@@ -170,19 +186,35 @@ socket.on('emptylobby',function(){
   }
 });
 
+// UPDATES THE ROUNDTIME
 socket.on('roundTime', function(time){
   document.getElementById('timeLeft').innerHTML = time;
 });
 
-socket.on('word', function(data){
-  console.log(data);
+// UPDATES THAT YOU GOT THE ANSWER
+socket.on('correctAnswer', function(data){
+  game.writeMSG('You guessed the word! +' + data + ' points',3);
+  game.canChat = false;
 });
 
+// UPDATES THE DRAWN WORD
+socket.on('word', function(data){
+  console.log(data);
+  document.getElementById('word').innerHTML = data;
+});
+
+// REVEALS THE WORd
+socket.on('revealWord', function(word){
+  game.writeMSG('The word was ' + word + '.',1);
+  game.canChat = true;
+});
+
+// RESETS THE CANVAS
 socket.on('resetCanvas', function(){
   game.ctx.clearRect(0, 0, game.c.width, game.c.height);
 })
 
-
+// START THE CHECKIN
 function init(){
   socket.emit('checkin',player);
 }
