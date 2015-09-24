@@ -4,19 +4,7 @@
     <meta charset="UTF-8">
     <title>Test</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-    <style>
-        body {
-            
-            margin:0;
-            padding:0;
-        }
-        #cvs {
-            position:absolute;
-            left:0px;
-            top:0px;
-            z-index: -1;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -24,14 +12,19 @@
     <script src='/socket.io/socket.io.js'></script>
     <div id="game">
         
-        <!-- This is the chatbox !-->
-        <div class="chatbox" id="chatbox">
-            <ul id="chatList"></ul>
-            <input id="chatInput" type="text" placeholder="blah blah" maxlength="35" />
+        <div id="sidebar">
+            <div id="drawname"></div>
+            <div id="timeLeft"></div>
+            <!-- This is the chatbox !-->
+            <div class="chatbox" id="chatbox">
+                <ul id="chatList"></ul>
+                <input id="chatInput" type="text" placeholder="blah blah" maxlength="35" />
+            </div>
         </div>
 
         <canvas id="cvs"> </canvas>
     </div>
+    
     
     <script type="text/javascript" src="/app.js"></script>
 </body>

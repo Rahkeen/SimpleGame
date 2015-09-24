@@ -18,6 +18,9 @@ function GAME(){
   this.c.width = this.width;
   this.c.height = this.height;
   this.clients = {};
+  this.canChat = true;
+  this.oddmsg = false;
+  this.emptyLobbyMsg = true;
 }
 
 GAME.prototype.drawLine = function(prevx, prevy, currentx, currenty){
@@ -25,6 +28,39 @@ GAME.prototype.drawLine = function(prevx, prevy, currentx, currenty){
   this.ctx.moveTo(prevx, prevy);
   this.ctx.lineTo(currentx, currenty);
   this.ctx.stroke();
+}
+
+// case 0 default
+// case 1 system
+// case 2 user joined
+GAME.prototype.writeMSG = function(msg, val){
+  var newline = document.createElement('li');
+  
+switch(val){
+  case 1:
+    newline.className = "systemli";
+    break;
+  case 2:
+    newline.className = "userli";
+    break;
+  default:
+    if(this.oddmsg){
+      newline.className = "oddli";
+      this.oddmsg = false;
+    }else{
+      newline.className = "evenli";
+      this.oddmsg = true;
+    }
+}
+
+  newline.innerHTML = msg;
+  var chatList = document.getElementById('chatList');
+  chatList.appendChild(newline);
+  chatList.scrollTop = chatList.scrollHeight;
+}
+
+GAME.prototype.changeDrawName = function(name){
+  document.getElementById('drawname').innerHTML = name + " IS DRAWING";
 }
 
 function PLAYER(){
@@ -86,13 +122,12 @@ game.c.addEventListener('mousemove', function(e){
 });
 
 // chat
-// chat
 // sends message to server
 var input = document.getElementById('chatInput');
 input.onkeypress = function(e){
   if (!e) e = window.event;
   var keyCode = e.keyCode || e.which;
-  if(keyCode == '13'){
+  if(keyCode == '13' && player.canChat){
     socket.emit('chat message', [player.id,input.value]);
     input.value = '';
     return false;
@@ -102,26 +137,41 @@ input.onkeypress = function(e){
 socket.on('inactiveDrawer', function(){
   console.log('inactive user');
   player.canDraw = false;
+  player.canChat = false;
+  game.writeMSG('Drawer is inactive, switching to next person.',1);
 });
 
 // recieves message from server
 socket.on('chat message', function(msg){
-  var newline = document.createElement('li');
-
-  newline.innerHTML = msg;
-  var chatList = document.getElementById('chatList');
-  if(chatList.childNodes.length>10){
-    chatList.removeChild(chatList.childNodes[0]);
-  }
-  chatList.appendChild(newline);
+  game.writeMSG(msg,0);
 });
 
 socket.on('assignDraw', function(data){
+  game.changeDrawName(data);
+  game.emptyLobbyMsg = true;
+
   if(data == player.id){
     player.canDraw = true;
+    player.canChat = false;
   }else{
     player.canDraw = false;
+    player.canChat = true;
   }
+});
+
+socket.on('someoneJoined',function(data){
+  game.writeMSG(data + ' has joined the lobby.',2);
+});
+
+socket.on('emptylobby',function(){
+  if(game.emptyLobbyMsg){
+    game.writeMSG('There is currently no one else in the lobby.',1);
+    game.emptyLobbyMsg = false;
+  }
+});
+
+socket.on('roundTime', function(time){
+  document.getElementById('timeLeft').innerHTML = time;
 });
 
 socket.on('word', function(data){
@@ -131,6 +181,7 @@ socket.on('word', function(data){
 socket.on('resetCanvas', function(){
   game.ctx.clearRect(0, 0, game.c.width, game.c.height);
 })
+
 
 function init(){
   socket.emit('checkin',player);

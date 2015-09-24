@@ -52,7 +52,9 @@ setInterval(function(){
     
     // wait for timer, and check against inputs from chat
     // subtract 1 second from round time
+    io.emit('roundTime', game.currentRoundTime);
     game.currentRoundTime -= 1;
+
 
     // if drawer hasn't drawn anything for the first game.inactiveTimeCheck, go to next user
     if(game.currentRoundTime < game.roundTime - game.inactiveTimeCheck && game.isHere == false){
@@ -66,6 +68,10 @@ setInterval(function(){
 
   }else{
     console.log('nobody in here');
+    game.currentRoundTime = game.roundTime;
+    game.firstGuess = 0;
+    game.isHere = false;
+    io.emit('emptylobby');
   }
 
 },1000);
@@ -95,6 +101,7 @@ io.on('connection', function(socket){
     game.clients.push(data);
 
     game.sockets[data.id] = socket;
+    socket.broadcast.emit('someoneJoined', data.id);
     //delete game.clients[data.id];
     //console.log(socket);
   });
@@ -121,7 +128,7 @@ io.on('connection', function(socket){
         }
       }
 
-      io.emit('chat message', data[1]);
+      io.emit('chat message', data[0] + ': ' + data[1]);
       //console.log('message: ' + msg);
     });
 
